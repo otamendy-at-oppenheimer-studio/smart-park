@@ -2,8 +2,8 @@
 
 ## 📊 Estado del Proyecto
 
-**Versión:** 2.0.0  
-**Estado:** ✅ **COMPLETAMENTE INTEGRADO Y FUNCIONAL**  
+**Versión:** 3.0.0  
+**Estado:** ✅ **MIGRADO A ORACLE DATABASE**  
 **Fecha:** Noviembre 2025
 
 ---
@@ -13,11 +13,11 @@
 Smart Park es un sistema completo de gestión de estacionamiento que combina:
 
 - 🤖 **Inteligencia Artificial** (YOLO v8) para detección visual de vehículos
-- 🔧 **Backend Robusto** (NestJS + PostgreSQL) para gestión de datos
+- 🔧 **Backend Robusto** (NestJS + Oracle DB) para gestión de datos
 - 🎨 **Frontend Moderno** (Vue.js) para visualización en tiempo real
-- 📊 **Base de Datos Unificada** (PostgreSQL) para consistencia total
+- 📊 **Base de Datos Unificada** (Oracle Database) para consistencia total
 
-**Novedad:** El sistema de IA ahora está **completamente integrado** con el backend y frontend, permitiendo actualizaciones en tiempo real.
+**Novedad v3.0:** El sistema ha sido migrado completamente de PostgreSQL a **Oracle Database** para cumplir con requerimientos externos.
 
 ---
 
@@ -28,10 +28,10 @@ Smart Park es un sistema completo de gestión de estacionamiento que combina:
 │   Cámara + YOLO     │  ← Detección visual de vehículos
 │   (parking-monitor) │
 └──────────┬──────────┘
-           │ psycopg2 (Python)
+           │ oracledb (Python)
            ↓
 ┌──────────────────────────────────┐
-│      PostgreSQL (Puerto 5433)    │  ← Base de datos única
+│    Oracle Database (Puerto 1521) │  ← Base de datos única
 │  ┌───────────────────────────┐  │
 │  │ parking_spaces            │  │  ← Espacios de estacionamiento
 │  │ occupancy_events          │  │  ← Historial de eventos
@@ -42,13 +42,13 @@ Smart Park es un sistema completo de gestión de estacionamiento que combina:
            ↓
 ┌──────────────────────┐
 │   Backend NestJS     │  ← API REST (Puerto 3000)
-│   (parking-iot-system)│
+│   (backend)          │
 └──────────┬───────────┘
            │ HTTP/REST
            ↓
 ┌──────────────────────┐
 │   Frontend Vue.js    │  ← Interfaz web (Puerto 5173)
-│   (SmartParking)     │
+│   (frontend)         │
 └──────────────────────┘
 ```
 
@@ -59,42 +59,48 @@ Smart Park es un sistema completo de gestión de estacionamiento que combina:
 ```
 smart-park/
 │
-├── parking-iot-system-main/    ← 🔧 BACKEND (NestJS)
+├── backend/                        ← 🔧 BACKEND (NestJS)
 │   ├── src/
 │   │   ├── modules/
-│   │   │   ├── parking/        ← Gestión de espacios
-│   │   │   ├── occupancy/      ← Eventos de ocupación
-│   │   │   ├── users/          ← Autenticación
+│   │   │   ├── parking/           ← Gestión de espacios
+│   │   │   ├── occupancy/         ← Eventos de ocupación
+│   │   │   ├── users/             ← Autenticación
 │   │   │   └── ...
-│   │   └── database/           ← Configuración PostgreSQL
-│   ├── docker-compose.yml      ← PostgreSQL containerizado
+│   │   └── database/              ← Configuración Oracle
+│   ├── docker-compose.yml         ← Oracle Database containerizado
+│   ├── init-oracle/               ← Scripts de inicialización
 │   └── package.json
 │
-├── SmartParking-master/        ← 🎨 FRONTEND (Vue.js)
+├── frontend/                       ← 🎨 FRONTEND (Vue.js)
 │   ├── src/
-│   │   ├── components/         ← Componentes UI
-│   │   ├── api/                ← Llamadas al backend
-│   │   └── stores/             ← Estado global (Pinia)
+│   │   ├── components/            ← Componentes UI
+│   │   ├── api/                   ← Llamadas al backend
+│   │   └── stores/                ← Estado global (Pinia)
 │   └── package.json
 │
-├── parking-monitor-ai/         ← 🤖 INTELIGENCIA ARTIFICIAL (Python)
+├── ai_service/                     ← 🤖 INTELIGENCIA ARTIFICIAL (Python)
 │   ├── src/
-│   │   ├── parking_monitor.py  ← Script principal ⭐
-│   │   └── verify_setup.py     ← Verificación
+│   │   ├── parking_monitor.py     ← Script principal ⭐
+│   │   └── verify_setup.py        ← Verificación
 │   ├── config/
-│   │   ├── parking_spots.json  ← Coordenadas de plazas
-│   │   └── spot_mapping.json   ← Mapeo ID → Código
+│   │   ├── parking_spots.json     ← Coordenadas de plazas
+│   │   └── spot_mapping.json      ← Mapeo ID → Código
 │   ├── requirements.txt
-│   ├── .env                    ← Configuración PostgreSQL
-│   ├── start.sh / start.bat    ← Scripts de inicio
+│   ├── .env                       ← Configuración Oracle
+│   ├── start.sh / start.bat       ← Scripts de inicio
 │   └── 📚 Documentación completa
 │
-└── INICIO_RAPIDO.md            ← 🚀 EMPIEZA AQUÍ
+├── INICIO_RAPIDO.md               ← 🚀 EMPIEZA AQUÍ
+└── MIGRACION_ORACLE.md            ← 📖 GUÍA DE MIGRACIÓN ⭐ NUEVO
 ```
 
 ---
 
 ## 🚀 Inicio Rápido
+
+### ⚠️ IMPORTANTE: Migración a Oracle Database
+
+**Si venías usando PostgreSQL**, lee primero [`MIGRACION_ORACLE.md`](MIGRACION_ORACLE.md) para entender los cambios.
 
 ### Para Usuarios Nuevos
 
@@ -105,17 +111,19 @@ smart-park/
 **Orden de inicio:**
 
 ```bash
-# 1. Backend + PostgreSQL
-cd parking-iot-system-main
-docker-compose up -d postgres
+# 1. Backend + Oracle Database
+cd backend
+docker-compose up -d oracle  # Tarda 1-2 min la primera vez
+npm install
 npm run start:dev
 
 # 2. Frontend
-cd ../SmartParking-master
+cd ../frontend
 npm run dev
 
 # 3. Monitor IA (después de configurar)
-cd ../parking-monitor-ai
+cd ../ai_service
+pip install -r requirements.txt
 bash start.sh  # o start.bat en Windows
 ```
 
@@ -123,23 +131,26 @@ bash start.sh  # o start.bat en Windows
 
 ## 📚 Documentación
 
+### ⭐ Migración a Oracle
+- **[🔄 MIGRACION_ORACLE.md](MIGRACION_ORACLE.md)** - Guía completa de migración PostgreSQL → Oracle
+
 ### General
 - **[🚀 INICIO_RAPIDO.md](INICIO_RAPIDO.md)** - Guía paso a paso para usuarios
 
 ### Backend
 - **API_FRONTEND_DOCS.md** - Documentación completa de la API REST
-- Ubicación: `parking-iot-system-main/`
+- Ubicación: `backend/`
 
 ### Frontend
 - **README.md** - Información del frontend Vue.js
-- Ubicación: `SmartParking-master/`
+- Ubicación: `frontend/`
 
-### IA (IMPORTANTE - Nuevos cambios)
-- **[README.md](parking-monitor-ai/README.md)** - Introducción
-- **[README_INTEGRATION.md](parking-monitor-ai/README_INTEGRATION.md)** - Guía completa de integración
-- **[MIGRATION_GUIDE.md](parking-monitor-ai/MIGRATION_GUIDE.md)** - Cambios técnicos (MySQL → PostgreSQL)
-- **[INSTALLATION_CHECKLIST.md](parking-monitor-ai/INSTALLATION_CHECKLIST.md)** - Lista de verificación
-- **[RESUMEN_CAMBIOS.md](parking-monitor-ai/RESUMEN_CAMBIOS.md)** - Resumen de cambios realizados
+### IA
+- **[README.md](ai_service/README.md)** - Introducción
+- **[README_INTEGRATION.md](ai_service/README_INTEGRATION.md)** - Guía completa de integración
+- **[MIGRATION_GUIDE.md](ai_service/MIGRATION_GUIDE.md)** - Cambios técnicos
+- **[INSTALLATION_CHECKLIST.md](ai_service/INSTALLATION_CHECKLIST.md)** - Lista de verificación
+- **[RESUMEN_CAMBIOS.md](ai_service/RESUMEN_CAMBIOS.md)** - Resumen de cambios realizados
 
 ---
 
@@ -155,7 +166,7 @@ bash start.sh  # o start.bat en Windows
 - ✅ API REST completa (NestJS)
 - ✅ Autenticación JWT
 - ✅ Control de acceso por roles (Admin/User)
-- ✅ Base de datos PostgreSQL
+- ✅ Base de datos Oracle Database
 - ✅ Migraciones automáticas con TypeORM
 
 ### 🎨 Frontend Moderno
@@ -167,10 +178,10 @@ bash start.sh  # o start.bat en Windows
 - ✅ Panel de administración
 
 ### 📊 Integración Completa
-- ✅ **NOVEDAD:** IA actualiza directamente PostgreSQL
+- ✅ IA actualiza directamente Oracle Database
 - ✅ Sincronización en tiempo real
 - ✅ Historial completo de eventos
-- ✅ Una sola fuente de verdad (PostgreSQL)
+- ✅ Una sola fuente de verdad (Oracle)
 
 ---
 
@@ -181,7 +192,7 @@ bash start.sh  # o start.bat en Windows
 1. 📹 **Cámara captura** el estacionamiento
 2. 🤖 **YOLO detecta** vehículos en tiempo real
 3. 🗺️ **Sistema mapea** plaza numérica (1, 2, 3) a código backend (A-01, A-02, A-03)
-4. 💾 **Actualiza PostgreSQL** directamente:
+4. 💾 **Actualiza Oracle Database** directamente:
    - Modifica `parking_spaces.status`
    - Crea evento en `occupancy_events`
 5. 🔌 **Backend** tiene datos actualizados inmediatamente
@@ -192,8 +203,8 @@ bash start.sh  # o start.bat en Windows
 
 1. 👤 Usuario abre el frontend
 2. 🌐 Frontend hace `GET /parking/spaces`
-3. 🔌 Backend consulta PostgreSQL
-4. 💾 PostgreSQL devuelve estados actuales (actualizados por IA)
+3. 🔌 Backend consulta Oracle Database
+4. 💾 Oracle devuelve estados actuales (actualizados por IA)
 5. 🎨 Frontend renderiza plazas con estado correcto
 
 ---
@@ -221,8 +232,8 @@ bash start.sh  # o start.bat en Windows
 
 ### Backend
 - **NestJS** - Framework Node.js
-- **TypeORM** - ORM para PostgreSQL
-- **PostgreSQL** - Base de datos relacional
+- **TypeORM** - ORM para Oracle Database
+- **Oracle Database 23c Free** - Base de datos enterprise
 - **JWT** - Autenticación
 - **Docker** - Contenedorización
 
@@ -237,7 +248,7 @@ bash start.sh  # o start.bat en Windows
 - **Python 3.8+** - Lenguaje
 - **YOLO v8** - Detección de objetos
 - **OpenCV** - Procesamiento de video
-- **psycopg2** - Conector PostgreSQL
+- **oracledb** - Conector Oracle nativo
 - **NumPy** - Procesamiento numérico
 
 ---
@@ -252,30 +263,30 @@ bash start.sh  # o start.bat en Windows
 
 ### 2. Configuración de Variables de Entorno
 
-**Backend** (`.env` en `parking-iot-system-main/`):
+**Backend** (`.env` en `backend/`):
 ```bash
 DB_HOST=localhost
-DB_PORT=5433
-DB_USER=admin
+DB_PORT=1521
+DB_USER=parkingapp
 DB_PASSWORD=admin123
-DB_NAME=parkingdb
+DB_SID=FREEPDB1
 JWT_SECRET=your-secret-key
 ```
 
-**IA** (`.env` en `parking-monitor-ai/`):
+**IA** (`.env` en `ai_service/`):
 ```bash
 DB_HOST=localhost
-DB_PORT=5433
-DB_USER=admin
+DB_PORT=1521
+DB_USER=parkingapp
 DB_PASSWORD=admin123
-DB_NAME=parkingdb
+DB_SID=FREEPDB1
 ```
 
 **⚠️ Importante:** Las credenciales deben coincidir en ambos proyectos.
 
 ### 3. Mapeo de Plazas
 
-Edita `parking-monitor-ai/config/spot_mapping.json`:
+Edita `ai_service/config/spot_mapping.json`:
 ```json
 {
     "1": "A-01",
@@ -309,18 +320,21 @@ python verify_setup.py
 
 ### Backend no inicia
 ```bash
-# Verifica PostgreSQL
-docker ps | grep postgres
+# Verifica Oracle Database
+docker ps | grep parking-db
 
-# Reinicia PostgreSQL
-cd parking-iot-system-main
-docker-compose restart postgres
+# Ver logs de Oracle
+docker logs -f parking-db
+
+# Reinicia Oracle
+cd backend
+docker-compose restart oracle
 ```
 
 ### IA no conecta a BD
 ```bash
 # Verifica configuración
-cd parking-monitor-ai/src
+cd ai_service/src
 python verify_setup.py
 ```
 
@@ -329,7 +343,7 @@ python verify_setup.py
 - Verifica que el backend responda
 - Revisa consola del navegador (F12)
 
-**Más detalles:** Ver documentación específica de cada módulo.
+**Más detalles:** Ver [`MIGRACION_ORACLE.md`](MIGRACION_ORACLE.md) para troubleshooting específico de Oracle.
 
 ---
 
@@ -379,6 +393,16 @@ Este proyecto está en desarrollo activo. Áreas de mejora:
 
 ## 📝 Changelog
 
+### v3.0.0 (Noviembre 2025) - MIGRACIÓN A ORACLE DATABASE
+- ✅ Migración completa de PostgreSQL a Oracle Database 23c Free
+- ✅ Backend NestJS adaptado para Oracle (TypeORM)
+- ✅ AI Service migrado a driver `oracledb`
+- ✅ Sintaxis SQL actualizada (placeholders `:1` en vez de `%s`)
+- ✅ Tipo de dato `jsonb` → `simple-json`
+- ✅ Docker Compose actualizado con imagen Oracle
+- ✅ Documentación completa de migración
+- ✅ Scripts de verificación actualizados
+
 ### v2.0.0 (Noviembre 2025) - INTEGRACIÓN COMPLETA
 - ✅ Migración de MySQL a PostgreSQL en módulo IA
 - ✅ Integración directa IA ↔ Backend
@@ -413,12 +437,12 @@ Este proyecto es parte del sistema Smart Park.
 
 ## 🎉 Estado Actual
 
-**✅ SISTEMA COMPLETAMENTE FUNCIONAL E INTEGRADO**
+**✅ SISTEMA COMPLETAMENTE FUNCIONAL CON ORACLE DATABASE**
 
-- Backend: ✅ Funcionando
+- Backend: ✅ Funcionando con Oracle
 - Frontend: ✅ Funcionando
-- IA: ✅ Integrado y funcionando
-- Base de Datos: ✅ Unificada (PostgreSQL)
+- IA: ✅ Integrado con Oracle
+- Base de Datos: ✅ Oracle Database 23c Free
 - Tiempo Real: ✅ Activo
 
 **¡Listo para usar! 🚗🎉**
@@ -426,5 +450,6 @@ Este proyecto es parte del sistema Smart Park.
 ---
 
 **Última actualización:** Noviembre 2025  
-**Versión:** 2.0.0  
+**Versión:** 3.0.0  
+**Base de Datos:** Oracle Database 23c Free  
 **Mantenedor:** Smart Park Team

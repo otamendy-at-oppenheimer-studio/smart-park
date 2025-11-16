@@ -21,7 +21,7 @@ export class OccupancyEvent {
   @ManyToOne(() => ParkingSpace, { nullable: false })
   parkingSpace: ParkingSpace;
 
-  @Column({ type: 'enum', enum: OccupancyStatus })
+  @Column({ type: 'varchar', length: 50 })
   status: OccupancyStatus;
 
   @CreateDateColumn()

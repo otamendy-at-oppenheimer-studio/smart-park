@@ -14,7 +14,7 @@ export class Report {
   @Column({ type: 'timestamp' })
   endDate: Date;
 
-  @Column('jsonb')
+  @Column('simple-json')
   data: any;
 
   @Column({ default: false })

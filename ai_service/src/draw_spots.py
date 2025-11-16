@@ -3,14 +3,47 @@
 import cv2
 import json
 import os
+import platform
+import uuid
+from datetime import datetime
+
+# Importar oracledb para conexión directa a la BD
+try:
+    import oracledb
+    DB_AVAILABLE = True
+except ImportError:
+    print("[AVISO] oracledb no está instalado. Las coordenadas solo se guardarán en JSON.")
+    DB_AVAILABLE = False
 
 # 📁 Ruta donde se guardan las coordenadas
 CONFIG_DIR = "config"
 SPOTS_FILE = os.path.join(CONFIG_DIR, "parking_spots.json")
 
+# Configuración de la base de datos Oracle (misma que el backend)
+DB_CONFIG = {
+    "user": os.environ.get("DB_USER", "parkingapp"),
+    "password": os.environ.get("DB_PASSWORD", "admin123"),
+    "dsn": f"{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '1521')}/{os.environ.get('DB_SID', 'FREEPDB1')}"
+}
+
 CAMERA_INDEX = 0  # Tu cámara Logitech
-CAMERA_BACKEND = cv2.CAP_MSMF  # Backend moderno de Windows
+
+# Detectar sistema operativo y seleccionar backend apropiado
+_system = platform.system()
+if _system == "Windows":
+    CAMERA_BACKEND = cv2.CAP_MSMF  # Backend moderno de Windows
+elif _system == "Linux":
+    CAMERA_BACKEND = cv2.CAP_V4L2  # Backend para Linux (Video4Linux2)
+elif _system == "Darwin":  # macOS
+    CAMERA_BACKEND = cv2.CAP_AVFOUNDATION
+else:
+    CAMERA_BACKEND = cv2.CAP_ANY  # Auto-detectar
+
 CAMERA_RESOLUTION = (640, 480)
+
+print(f"[INFO] Sistema detectado: {_system}")
+print(f"[INFO] Backend de cámara: {CAMERA_BACKEND}")
+print(f"[INFO] Base de datos Oracle: {DB_CONFIG['dsn']}")
 
 
 def capture_frame(video_source=0):
@@ -102,6 +135,86 @@ def define_spots(video_source=0):
         print(f"[✅ OK] {len(spots)} lugares guardados en {SPOTS_FILE}")
     except Exception as e:
         print(f"[ERROR] No se pudo guardar el archivo {SPOTS_FILE}: {e}")
+    
+    # ========== GUARDAR DIRECTAMENTE EN LA BASE DE DATOS ORACLE ==========
+    if len(spots) > 0 and DB_AVAILABLE:
+        print("\n[INFO] Conectando con la base de datos Oracle...")
+        conn = None
+        try:
+            # Conectar a Oracle
+            conn = oracledb.connect(**DB_CONFIG)
+            cursor = conn.cursor()
+            print("[✅ BD] Conexión exitosa a Oracle Database")
+            
+            # 1. Borrar todos los registros relacionados primero (en orden de dependencias)
+            print("[INFO] Eliminando registros relacionados...")
+            
+            # Borrar eventos de ocupación
+            cursor.execute('DELETE FROM "occupancy_events"')
+            events_deleted = cursor.rowcount
+            print(f"[✅ BD] Eventos de ocupación eliminados: {events_deleted}")
+            
+            # Borrar sensores
+            cursor.execute('DELETE FROM "sensors"')
+            sensors_deleted = cursor.rowcount
+            print(f"[✅ BD] Sensores eliminados: {sensors_deleted}")
+            
+            # Ahora sí borrar los espacios de estacionamiento
+            cursor.execute('DELETE FROM "parking_spaces"')
+            spaces_deleted = cursor.rowcount
+            conn.commit()
+            print(f"[✅ BD] Espacios anteriores eliminados: {spaces_deleted}")
+            
+            # 2. Crear nuevos espacios con coordenadas
+            created_count = 0
+            for spot in spots:
+                try:
+                    (x1, y1), (x2, y2) = spot["coords"]
+                    
+                    # Generar UUID y código de espacio
+                    space_uuid = str(uuid.uuid4())
+                    letter = chr(65 + ((spot["id"] - 1) // 99))  # A, B, C...
+                    number = str(((spot["id"] - 1) % 99) + 1).zfill(2)
+                    space_code = f"{letter}-{number}"
+                    
+                    # Insertar en la base de datos
+                    cursor.execute(
+                        '''INSERT INTO "parking_spaces" 
+                           ("id", "spaceCode", "status", "x1", "y1", "x2", "y2", "createdAt", "updatedAt")
+                           VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)''',
+                        (
+                            space_uuid,
+                            space_code,
+                            'unknown',
+                            int(x1),
+                            int(y1),
+                            int(x2),
+                            int(y2),
+                            datetime.now(),
+                            datetime.now()
+                        )
+                    )
+                    created_count += 1
+                    print(f"[✅ BD] Espacio {space_code} creado con coordenadas ({x1},{y1}) -> ({x2},{y2})")
+                    
+                except Exception as e:
+                    print(f"[ERROR BD] Error al crear espacio {spot['id']}: {e}")
+            
+            conn.commit()
+            cursor.close()
+            print(f"\n[🎉 COMPLETADO] {created_count}/{len(spots)} espacios guardados en la base de datos")
+            
+        except Exception as e:
+            print(f"[ERROR BD] Error de conexión a Oracle: {e}")
+            print(f"[INFO] Verifica las variables de entorno: DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_SID")
+            if conn:
+                conn.rollback()
+        finally:
+            if conn:
+                conn.close()
+    elif not DB_AVAILABLE:
+        print("\n[INFO] oracledb no disponible: coordenadas guardadas solo en JSON")
+
 
 
 def draw_spots(frame, spots_cache=None):

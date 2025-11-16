@@ -102,4 +102,37 @@ export class ParkingService {
 		await this.parkingRepo.remove(space);
 		return true;
 	}
+
+	/**
+	 * Borrar TODOS los espacios de estacionamiento (usado antes de dibujar nuevos espacios)
+	 */
+	async deleteAllSpaces(): Promise<{ deletedCount: number }> {
+		const spaces = await this.parkingRepo.find();
+		const count = spaces.length;
+		await this.parkingRepo.remove(spaces);
+		return { deletedCount: count };
+	}
+
+	/**
+	 * Crear un espacio con coordenadas (usado desde draw_spots.py)
+	 */
+	async createSpaceWithCoords(data: {
+		spaceCode: string;
+		x1: number;
+		y1: number;
+		x2: number;
+		y2: number;
+		floor?: string;
+	}): Promise<ParkingSpace> {
+		const space = this.parkingRepo.create({
+			spaceCode: data.spaceCode,
+			x1: data.x1,
+			y1: data.y1,
+			x2: data.x2,
+			y2: data.y2,
+			floor: data.floor,
+			status: SpaceStatus.UNKNOWN,
+		});
+		return this.parkingRepo.save(space);
+	}
 }

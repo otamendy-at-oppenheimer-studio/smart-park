@@ -22,7 +22,7 @@ export class Sensor {
   @Column()
   hwId: string; // Identificador único del ESP32
 
-  @Column({ type: 'enum', enum: SensorType, default: SensorType.ULTRASONIC })
+  @Column({ type: 'varchar', length: 50, default: SensorType.ULTRASONIC })
   type: SensorType;
 
   @Column({ nullable: true })

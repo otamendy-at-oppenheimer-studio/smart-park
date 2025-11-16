@@ -95,4 +95,46 @@ export class ParkingController {
 		if (!ok) return { message: 'Espacio no encontrado' };
 		return { message: 'Espacio eliminado con éxito' };
 	}
+
+	/**
+	 * Borrar TODOS los espacios (usado antes de dibujar nuevos espacios con la cámara)
+	 */
+	@Delete('spaces')
+	async deleteAllSpaces() {
+		try {
+			const result = await this.parkingService.deleteAllSpaces();
+			return { 
+				message: 'Todos los espacios eliminados con éxito', 
+				deletedCount: result.deletedCount 
+			};
+		} catch (error) {
+			return { 
+				message: 'Error al eliminar los espacios', 
+				error: error.message || error 
+			};
+		}
+	}
+
+	/**
+	 * Crear espacio con coordenadas (usado desde draw_spots.py)
+	 */
+	@Post('spaces/with-coords')
+	async createSpaceWithCoords(@Body() body: {
+		spaceCode: string;
+		x1: number;
+		y1: number;
+		x2: number;
+		y2: number;
+		floor?: string;
+	}) {
+		try {
+			const space = await this.parkingService.createSpaceWithCoords(body);
+			return { message: 'Espacio creado con coordenadas', space };
+		} catch (error) {
+			return { 
+				message: 'Error al crear el espacio', 
+				error: error.message || error 
+			};
+		}
+	}
 }

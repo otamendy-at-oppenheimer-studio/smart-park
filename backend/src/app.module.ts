@@ -8,6 +8,7 @@ import { OccupancyModule } from './modules/occupancy/occupancy.module';
 import { SensorsModule } from './modules/sensors/sensors.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { AuditModule } from './modules/audit/audit.module';
 
 @Module({
   imports: [
@@ -20,18 +21,18 @@ import { CommonModule } from './common/common.module';
         const portStr = process.env.DB_PORT;
         const username = configService.get<string>('DB_USER');
         const password = configService.get<string>('DB_PASSWORD');
-        const database = configService.get<string>('DB_NAME');
+        const serviceName = configService.get<string>('DB_SERVICE_NAME');
 
-        if (!host || !portStr || !username || !password || !database) {
+        if (!host || !portStr || !username || !password || !serviceName) {
           throw new Error('Faltan variables de entorno para la configuración de la base de datos. Verifica el archivo .env');
         }
         return {
-          type: 'postgres',
+          type: 'oracle',
           host,
           port: parseInt(portStr, 10),
           username,
           password,
-          database,
+          serviceName,
           autoLoadEntities: true,
           synchronize: true,
         };
@@ -42,6 +43,7 @@ import { CommonModule } from './common/common.module';
   SensorsModule,
   AuthModule,
   CommonModule,
+  AuditModule,
   ],
   providers: [
     {

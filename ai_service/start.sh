@@ -14,14 +14,21 @@ if ! command -v python3 &> /dev/null; then
     echo "❌ Python 3 no está instalado"
     exit 1
 fi
+
+# Activar entorno virtual si existe
+if [ -d "venv" ]; then
+    echo "🔧 Activando entorno virtual..."
+    source venv/bin/activate
+fi
+
 PYTHON_VERSION=$(python3 --version)
 echo "✅ $PYTHON_VERSION"
 echo ""
 
 # Verificar dependencias
 echo "📦 Verificando dependencias de Python..."
-if ! python3 -c "import psycopg2" 2>/dev/null; then
-    echo "⚠️  psycopg2 no está instalado"
+if ! python -c "import oracledb" 2>/dev/null; then
+    echo "⚠️  oracledb no está instalado"
     echo "💡 Instalando dependencias..."
     pip install -r requirements.txt
     if [ $? -ne 0 ]; then
@@ -51,7 +58,9 @@ echo ""
 
 # Cargar variables de entorno
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    set -a  # Exportar automáticamente todas las variables
+    source .env
+    set +a
 fi
 
 # Verificar archivos de configuración
@@ -67,7 +76,7 @@ if [ ! -f config/spot_mapping.json ]; then
     echo "⚠️  config/spot_mapping.json no encontrado"
     echo "💡 Este archivo mapea los IDs numéricos a los códigos del backend"
     echo "💡 Ejecutando script de verificación..."
-    python3 src/verify_setup.py
+    python src/verify_setup.py
     exit 1
 fi
 echo "✅ spot_mapping.json encontrado"
@@ -84,7 +93,7 @@ echo ""
 
 # Ejecutar verificación de setup
 echo "🔍 Verificando conexión a base de datos..."
-python3 src/verify_setup.py
+python src/verify_setup.py
 if [ $? -ne 0 ]; then
     echo ""
     echo "❌ Error en la verificación. Revisa la configuración antes de continuar."
@@ -106,10 +115,10 @@ if [ "$response" = "s" ] || [ "$response" = "S" ]; then
     echo "   Presiona 'q' en la ventana del monitor para detenerlo"
     echo ""
     cd src
-    python3 parking_monitor.py
+    python parking_monitor.py
 else
     echo ""
     echo "ℹ️  Para iniciar manualmente:"
     echo "   cd src"
-    echo "   python3 parking_monitor.py"
+    echo "   python parking_monitor.py"
 fi

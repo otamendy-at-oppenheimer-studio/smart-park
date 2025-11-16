@@ -3,6 +3,7 @@ fastapi
 uvicorn
 requests
 pydantic
+python-dotenv
 
 # --- Computer Vision / IA ---
 torch
@@ -16,7 +17,7 @@ Pillow
 ultralytics>=8.2.0
 
 # --- Database ---
-psycopg2-binary
+oracledb
 
 # --- Entrenamiento opcional ---
 scikit-learn

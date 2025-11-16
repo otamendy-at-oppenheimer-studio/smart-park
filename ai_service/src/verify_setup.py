@@ -1,186 +1,156 @@
 #!/usr/bin/env python3
 """
-Script de utilidad para verificar y configurar la integración con PostgreSQL.
+verify_setup.py
+
+Script de utilidad para verificar y configurar la integración con Oracle Database.
 """
 
 import os
 import sys
 import json
 from pathlib import Path
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import oracledb
 
-# Rutas absolutas
 PROJECT_ROOT = Path(__file__).parent.parent
 SPOT_MAPPING_FILE = PROJECT_ROOT / "config" / "spot_mapping.json"
 
-# Configuración PostgreSQL
+# Configuración Oracle Database
 DB_CONFIG = {
-    "host": os.environ.get("DB_HOST", "localhost"),
-    "port": int(os.environ.get("DB_PORT", "5433")),
-    "user": os.environ.get("DB_USER", "admin"),
+    "user": os.environ.get("DB_USER", "parkingapp"),
     "password": os.environ.get("DB_PASSWORD", "admin123"),
-    "database": os.environ.get("DB_NAME", "parkingdb")
+    "dsn": f"{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '1521')}/{os.environ.get('DB_SID', 'FREEPDB1')}"
 }
 
 
 def test_connection():
-    """Prueba la conexión a PostgreSQL."""
-    print("🔍 Probando conexión a PostgreSQL...")
-    print(f"   Host: {DB_CONFIG['host']}")
-    print(f"   Puerto: {DB_CONFIG['port']}")
-    print(f"   Base de datos: {DB_CONFIG['database']}")
+    """Prueba la conexión a Oracle Database."""
+    print("🔍 Probando conexión a Oracle Database...")
+    print(f"   DSN: {DB_CONFIG['dsn']}")
     print(f"   Usuario: {DB_CONFIG['user']}")
     
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = oracledb.connect(**DB_CONFIG)
         cursor = conn.cursor()
-        cursor.execute("SELECT version();")
+        cursor.execute("SELECT BANNER FROM V$VERSION WHERE ROWNUM = 1")
         version = cursor.fetchone()
         cursor.close()
         conn.close()
-        print(f"✅ Conexión exitosa!")
-        print(f"   PostgreSQL version: {version[0][:50]}...")
+        
+        print("✅ Conexión exitosa!")
+        print(f"   Oracle version: {version[0][:50]}...")
         return True
     except Exception as e:
         print(f"❌ Error de conexión: {e}")
-        print("\n💡 Verifica:")
-        print("   1. PostgreSQL está corriendo")
-        print("   2. Las credenciales son correctas")
-        print("   3. El puerto es el correcto (5433 por defecto)")
         return False
 
 
 def list_parking_spaces():
-    """Lista todos los espacios de estacionamiento disponibles."""
-    print("\n📋 Espacios de estacionamiento en la base de datos:")
+    """Lista todas las plazas de estacionamiento en la BD."""
+    print("\n📊 Listando parking_spaces...")
     
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute('SELECT id, "spaceCode", status, floor FROM parking_spaces ORDER BY "spaceCode"')
+        conn = oracledb.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute('SELECT "id", "spaceCode", "status", "floor" FROM "parking_spaces" ORDER BY "spaceCode"')
         spaces = cursor.fetchall()
         cursor.close()
         conn.close()
         
         if not spaces:
-            print("⚠️  No hay espacios creados en la base de datos.")
-            print("\n💡 Crea espacios desde el backend:")
-            print("   curl -X POST http://localhost:3000/parking/spaces/multiple \\")
-            print("     -H 'Authorization: Bearer TOKEN' \\")
-            print("     -H 'Content-Type: application/json' \\")
-            print("     -d '{\"count\": 4}'")
+            print("⚠️  No hay plazas de estacionamiento en la BD.")
+            print("   El backend con TypeORM las creará automáticamente al iniciarse.")
             return []
         
-        print(f"\n{'ID':<38} {'Código':<10} {'Estado':<15} {'Piso':<10}")
-        print("-" * 75)
+        print(f"   Total: {len(spaces)} plazas\n")
         for space in spaces:
-            status_icon = "🚗" if space['status'] == 'occupied' else "🟩" if space['status'] == 'free' else "❓"
-            floor_str = space['floor'] if space['floor'] else "N/A"
-            print(f"{space['id']} {space['spaceCode']:<10} {status_icon} {space['status']:<12} {floor_str:<10}")
+            space_id, space_code, status, floor = space
+            print(f"   • {space_code} → ID: {space_id[:8]}... | Estado: {status} | Piso: {floor or 'N/A'}")
         
         return spaces
+        
     except Exception as e:
-        print(f"❌ Error al listar espacios: {e}")
+        print(f"❌ Error al listar plazas: {e}")
         return []
 
 
-def verify_spot_mapping():
-    """Verifica que el mapeo de plazas sea válido."""
-    print("\n🗺️  Verificando mapeo de plazas...")
+def verify_spot_mapping(spaces):
+    """Verifica que el mapeo de plazas coincida con la BD."""
+    print("\n🗺️  Verificando spot_mapping.json...")
     
     if not SPOT_MAPPING_FILE.exists():
-        print(f"⚠️  No se encontró {SPOT_MAPPING_FILE}")
-        return False
+        print(f"⚠️  No existe {SPOT_MAPPING_FILE}")
+        print("   Creando mapeo básico...")
+        return
     
     try:
-        with open(SPOT_MAPPING_FILE, "r") as f:
+        with open(SPOT_MAPPING_FILE, 'r') as f:
             mapping = json.load(f)
         
-        print(f"   Archivo: {SPOT_MAPPING_FILE}")
-        print(f"   Plazas mapeadas: {len(mapping)}")
+        space_codes_in_db = {s[1] for s in spaces}  # s[1] es spaceCode
+        space_codes_in_mapping = set(mapping.values())
         
-        # Verificar que cada spaceCode existe en la BD
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        missing_in_mapping = space_codes_in_db - space_codes_in_mapping
+        extra_in_mapping = space_codes_in_mapping - space_codes_in_db
         
-        all_valid = True
-        for spot_id, space_code in mapping.items():
-            cursor.execute('SELECT id FROM parking_spaces WHERE "spaceCode" = %s', (space_code,))
+        if not missing_in_mapping and not extra_in_mapping:
+            print("✅ El mapeo está sincronizado con la BD")
+        else:
+            if missing_in_mapping:
+                print(f"⚠️  Plazas en BD pero no en mapping: {missing_in_mapping}")
+            if extra_in_mapping:
+                print(f"⚠️  Plazas en mapping pero no en BD: {extra_in_mapping}")
+                
+    except Exception as e:
+        print(f"❌ Error al verificar mapeo: {e}")
+
+
+def test_space_query():
+    """Prueba una consulta típica que hace parking_monitor.py"""
+    print("\n🧪 Probando consulta de ejemplo...")
+    
+    try:
+        conn = oracledb.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        
+        # Buscar una plaza por código
+        test_codes = ["A-01", "A-02", "A-03", "A-04"]
+        for space_code in test_codes:
+            cursor.execute('SELECT "id" FROM "parking_spaces" WHERE "spaceCode" = :1', (space_code,))
             result = cursor.fetchone()
             
             if result:
-                print(f"   ✅ {spot_id} → {space_code} (UUID: {result['id'][:8]}...)")
-            else:
-                print(f"   ❌ {spot_id} → {space_code} (NO EXISTE en la BD)")
-                all_valid = False
+                print(f"✅ Encontrado {space_code}: {result[0][:8]}...")
+                break
+        else:
+            print("⚠️  No se encontraron plazas de prueba (A-01, A-02, etc.)")
         
         cursor.close()
         conn.close()
         
-        if all_valid:
-            print("✅ Todos los códigos del mapeo existen en la BD")
-        else:
-            print("\n⚠️  Algunos códigos no existen. Actualiza el mapeo o crea los espacios.")
-        
-        return all_valid
     except Exception as e:
-        print(f"❌ Error al verificar mapeo: {e}")
-        return False
-
-
-def generate_mapping_template(spaces):
-    """Genera una plantilla de mapeo basada en los espacios existentes."""
-    print("\n📝 Generando plantilla de mapeo...")
-    
-    if not spaces:
-        print("⚠️  No hay espacios para generar plantilla")
-        return
-    
-    mapping = {}
-    for i, space in enumerate(spaces[:10], start=1):  # Solo los primeros 10
-        mapping[str(i)] = space['spaceCode']
-    
-    template_file = PROJECT_ROOT / "config" / "spot_mapping_template.json"
-    with open(template_file, "w") as f:
-        json.dump(mapping, f, indent=4)
-    
-    print(f"✅ Plantilla creada en: {template_file}")
-    print("\n📋 Contenido:")
-    print(json.dumps(mapping, indent=4))
-    print(f"\n💡 Copia este archivo a {SPOT_MAPPING_FILE} y ajusta según tus plazas configuradas.")
+        print(f"❌ Error en consulta: {e}")
 
 
 def main():
-    print("=" * 75)
-    print("🚗 Smart Park - Verificación de Integración PostgreSQL")
-    print("=" * 75)
+    print("=" * 60)
+    print("   🚗 Verificación de Setup - Oracle Database")
+    print("=" * 60)
     
-    # Test de conexión
     if not test_connection():
+        print("\n❌ No se pudo conectar a Oracle. Verifica:")
+        print("   1. Que el contenedor Oracle esté corriendo")
+        print("   2. Las variables de entorno (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_SID)")
         sys.exit(1)
     
-    # Listar espacios
     spaces = list_parking_spaces()
     
-    # Verificar mapeo
-    mapping_valid = verify_spot_mapping()
+    if spaces:
+        verify_spot_mapping(spaces)
+        test_space_query()
     
-    # Generar plantilla si no hay mapeo válido
-    if not mapping_valid and spaces:
-        response = input("\n¿Generar plantilla de mapeo automáticamente? (s/n): ")
-        if response.lower() == 's':
-            generate_mapping_template(spaces)
-    
-    print("\n" + "=" * 75)
-    print("✅ Verificación completa")
-    print("=" * 75)
-    
-    if mapping_valid:
-        print("\n🎉 Todo listo para ejecutar el monitor de IA!")
-        print("   python parking_monitor.py")
-    else:
-        print("\n⚠️  Completa la configuración antes de ejecutar el monitor.")
+    print("\n" + "=" * 60)
+    print("✅ Verificación completada")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
