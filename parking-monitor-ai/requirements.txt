@@ -1,0 +1,23 @@
+# --- Core ---
+fastapi
+uvicorn
+requests
+pydantic
+
+# --- Computer Vision / IA ---
+torch
+torchvision
+torchaudio
+opencv-python
+numpy
+Pillow
+
+# --- Detección YOLO (usa CUDA automáticamente si está disponible) ---
+ultralytics>=8.2.0
+
+# --- Database ---
+psycopg2-binary
+
+# --- Entrenamiento opcional ---
+scikit-learn
+matplotlib

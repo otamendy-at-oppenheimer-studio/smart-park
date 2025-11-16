@@ -1,0 +1,13 @@
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 1
+names: ['toy_car']
+
+roboflow:
+  workspace: tamayo
+  project: tamagod2-fjtet
+  version: 4
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/tamayo/tamagod2-fjtet/dataset/4

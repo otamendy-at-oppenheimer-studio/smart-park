@@ -1,0 +1,360 @@
+{
+  "info": {
+    "_postman_id": "parking-access-collection",
+    "name": "Parking Access API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Occupancy - Crear evento (caso 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"parkingSpaceId\": \"1\",\n  \"status\": \"OCCUPIED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/occupancy",
+          "host": ["{{baseUrl}}"],
+          "path": ["occupancy"]
+        }
+      }
+    },
+    {
+      "name": "Occupancy - Crear evento (caso 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"parkingSpaceId\": \"2\",\n  \"status\": \"FREE\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/occupancy",
+          "host": ["{{baseUrl}}"],
+          "path": ["occupancy"]
+        }
+      }
+    },
+    {
+      "name": "Occupancy - Historial",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/occupancy/history/:parkingSpaceId",
+          "host": ["{{baseUrl}}"],
+          "path": ["occupancy", "history", ":parkingSpaceId"]
+        }
+      }
+    },
+    {
+      "name": "Parking - Todos los espacios",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/parking/spaces",
+          "host": ["{{baseUrl}}"],
+          "path": ["parking", "spaces"]
+        }
+      }
+    },
+    {
+      "name": "Parking - Espacio por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/parking/spaces/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["parking", "spaces", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Parking - Cambiar estado",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"FREE\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/parking/spaces/:id/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["parking", "spaces", ":id", "status"]
+        }
+      }
+    },
+    {
+      "name": "Parking - Crear múltiples espacios (caso 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"count\": 10\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/parking/spaces/multiple",
+          "host": ["{{baseUrl}}"],
+          "path": ["parking", "spaces", "multiple"]
+        }
+      }
+    },
+    {
+      "name": "Parking - Crear múltiples espacios (caso 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"count\": 2\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/parking/spaces/multiple",
+          "host": ["{{baseUrl}}"],
+          "path": ["parking", "spaces", "multiple"]
+        }
+      }
+    },
+    {
+      "name": "Reports - Crear (caso 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"parkingSpaceId\": \"1\",\n  \"startDate\": \"2025-09-06T00:00:00Z\",\n  \"endDate\": \"2025-09-06T23:59:59Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/reports",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports"]
+        }
+      }
+    },
+    {
+      "name": "Reports - Crear (caso 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"parkingSpaceId\": \"2\",\n  \"startDate\": \"2025-09-05T00:00:00Z\",\n  \"endDate\": \"2025-09-05T23:59:59Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/reports",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports"]
+        }
+      }
+    },
+    {
+      "name": "Reports - Actualizar",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"startDate\": \"2025-09-06T08:00:00Z\",\n  \"endDate\": \"2025-09-06T18:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/reports/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Reports - Eliminar",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/reports/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Reports - Obtener todos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/reports",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports"]
+        }
+      }
+    },
+    {
+      "name": "Sensors - Crear sensor (caso 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hwId\": \"sensor-001\",\n  \"type\": \"IR\",\n  \"locationDescription\": \"Cerca de la entrada principal\",\n  \"parkingSpaceId\": \"1\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sensors",
+          "host": ["{{baseUrl}}"],
+          "path": ["sensors"]
+        }
+      }
+    },
+    {
+      "name": "Sensors - Crear sensor (caso 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hwId\": \"sensor-002\",\n  \"type\": \"ULTRASONIC\",\n  \"locationDescription\": \"Zona trasera\",\n  \"parkingSpaceId\": \"2\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sensors",
+          "host": ["{{baseUrl}}"],
+          "path": ["sensors"]
+        }
+      }
+    },
+    {
+      "name": "Sensors - Evento",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"hwId\": \"sensor-001\",\n  \"status\": \"OCCUPIED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sensors/event",
+          "host": ["{{baseUrl}}"],
+          "path": ["sensors", "event"]
+        }
+      }
+    },
+    {
+      "name": "Users - Crear usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nuevo@ejemplo.com\",\n  \"password\": \"123456\",\n  \"role\": \"user\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["users"]
+        }
+      },
+      "description": "Crea un usuario nuevo.\nEjemplo de request:\n{\n  \"email\": \"nuevo@ejemplo.com\",\n  \"password\": \"123456\",\n  \"role\": \"user\"\n}\nRespuesta:\n{\n  \"message\": \"Usuario creado con éxito\",\n  \"user\": { ... }\n}"
+    },
+    {
+      "name": "Users - Obtener todos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["users"]
+        }
+      },
+      "description": "Obtiene todos los usuarios no eliminados.\nRespuesta:\n[ { \"id\": \"uuid\", \"email\": \"admin@ejemplo.com\", ... } ]"
+    },
+    {
+      "name": "Users - Obtener por ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/users/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", ":id"]
+        }
+      },
+      "description": "Obtiene un usuario por su ID.\nRespuesta:\n{ \"id\": \"uuid\", \"email\": \"user1@ejemplo.com\", ... }"
+    },
+    {
+      "name": "Users - Editar usuario",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nuevo2@ejemplo.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", ":id"]
+        }
+      },
+      "description": "Edita un usuario existente.\nEjemplo de request:\n{ \"email\": \"nuevo2@ejemplo.com\" }\nRespuesta:\n{ \"message\": \"Usuario actualizado con éxito\", \"user\": { ... } }"
+    },
+    {
+      "name": "Users - Soft delete",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/users/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", ":id"]
+        }
+      },
+      "description": "Elimina lógicamente un usuario.\nRespuesta:\n{ \"message\": \"Usuario eliminado (soft delete) con éxito\" }"
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

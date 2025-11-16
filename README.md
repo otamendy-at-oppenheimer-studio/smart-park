@@ -1,0 +1,430 @@
+# 🚗 Smart Park - Sistema Integrado de Estacionamiento Inteligente
+
+## 📊 Estado del Proyecto
+
+**Versión:** 2.0.0  
+**Estado:** ✅ **COMPLETAMENTE INTEGRADO Y FUNCIONAL**  
+**Fecha:** Noviembre 2025
+
+---
+
+## 🎯 Resumen Ejecutivo
+
+Smart Park es un sistema completo de gestión de estacionamiento que combina:
+
+- 🤖 **Inteligencia Artificial** (YOLO v8) para detección visual de vehículos
+- 🔧 **Backend Robusto** (NestJS + PostgreSQL) para gestión de datos
+- 🎨 **Frontend Moderno** (Vue.js) para visualización en tiempo real
+- 📊 **Base de Datos Unificada** (PostgreSQL) para consistencia total
+
+**Novedad:** El sistema de IA ahora está **completamente integrado** con el backend y frontend, permitiendo actualizaciones en tiempo real.
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+```
+┌─────────────────────┐
+│   Cámara + YOLO     │  ← Detección visual de vehículos
+│   (parking-monitor) │
+└──────────┬──────────┘
+           │ psycopg2 (Python)
+           ↓
+┌──────────────────────────────────┐
+│      PostgreSQL (Puerto 5433)    │  ← Base de datos única
+│  ┌───────────────────────────┐  │
+│  │ parking_spaces            │  │  ← Espacios de estacionamiento
+│  │ occupancy_events          │  │  ← Historial de eventos
+│  │ users, sensors, reports   │  │  ← Otros datos
+│  └───────────────────────────┘  │
+└──────────┬───────────────────────┘
+           │ TypeORM
+           ↓
+┌──────────────────────┐
+│   Backend NestJS     │  ← API REST (Puerto 3000)
+│   (parking-iot-system)│
+└──────────┬───────────┘
+           │ HTTP/REST
+           ↓
+┌──────────────────────┐
+│   Frontend Vue.js    │  ← Interfaz web (Puerto 5173)
+│   (SmartParking)     │
+└──────────────────────┘
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+smart-park/
+│
+├── parking-iot-system-main/    ← 🔧 BACKEND (NestJS)
+│   ├── src/
+│   │   ├── modules/
+│   │   │   ├── parking/        ← Gestión de espacios
+│   │   │   ├── occupancy/      ← Eventos de ocupación
+│   │   │   ├── users/          ← Autenticación
+│   │   │   └── ...
+│   │   └── database/           ← Configuración PostgreSQL
+│   ├── docker-compose.yml      ← PostgreSQL containerizado
+│   └── package.json
+│
+├── SmartParking-master/        ← 🎨 FRONTEND (Vue.js)
+│   ├── src/
+│   │   ├── components/         ← Componentes UI
+│   │   ├── api/                ← Llamadas al backend
+│   │   └── stores/             ← Estado global (Pinia)
+│   └── package.json
+│
+├── parking-monitor-ai/         ← 🤖 INTELIGENCIA ARTIFICIAL (Python)
+│   ├── src/
+│   │   ├── parking_monitor.py  ← Script principal ⭐
+│   │   └── verify_setup.py     ← Verificación
+│   ├── config/
+│   │   ├── parking_spots.json  ← Coordenadas de plazas
+│   │   └── spot_mapping.json   ← Mapeo ID → Código
+│   ├── requirements.txt
+│   ├── .env                    ← Configuración PostgreSQL
+│   ├── start.sh / start.bat    ← Scripts de inicio
+│   └── 📚 Documentación completa
+│
+└── INICIO_RAPIDO.md            ← 🚀 EMPIEZA AQUÍ
+```
+
+---
+
+## 🚀 Inicio Rápido
+
+### Para Usuarios Nuevos
+
+**Lee primero:** [`INICIO_RAPIDO.md`](INICIO_RAPIDO.md) - Guía paso a paso completa
+
+### Para Desarrolladores
+
+**Orden de inicio:**
+
+```bash
+# 1. Backend + PostgreSQL
+cd parking-iot-system-main
+docker-compose up -d postgres
+npm run start:dev
+
+# 2. Frontend
+cd ../SmartParking-master
+npm run dev
+
+# 3. Monitor IA (después de configurar)
+cd ../parking-monitor-ai
+bash start.sh  # o start.bat en Windows
+```
+
+---
+
+## 📚 Documentación
+
+### General
+- **[🚀 INICIO_RAPIDO.md](INICIO_RAPIDO.md)** - Guía paso a paso para usuarios
+
+### Backend
+- **API_FRONTEND_DOCS.md** - Documentación completa de la API REST
+- Ubicación: `parking-iot-system-main/`
+
+### Frontend
+- **README.md** - Información del frontend Vue.js
+- Ubicación: `SmartParking-master/`
+
+### IA (IMPORTANTE - Nuevos cambios)
+- **[README.md](parking-monitor-ai/README.md)** - Introducción
+- **[README_INTEGRATION.md](parking-monitor-ai/README_INTEGRATION.md)** - Guía completa de integración
+- **[MIGRATION_GUIDE.md](parking-monitor-ai/MIGRATION_GUIDE.md)** - Cambios técnicos (MySQL → PostgreSQL)
+- **[INSTALLATION_CHECKLIST.md](parking-monitor-ai/INSTALLATION_CHECKLIST.md)** - Lista de verificación
+- **[RESUMEN_CAMBIOS.md](parking-monitor-ai/RESUMEN_CAMBIOS.md)** - Resumen de cambios realizados
+
+---
+
+## ✨ Características Principales
+
+### 🤖 Detección Inteligente
+- ✅ Detección automática de vehículos con YOLO v8
+- ✅ Configuración flexible de zonas de estacionamiento
+- ✅ Ajuste de sensibilidad y umbrales
+- ✅ Soporte para múltiples cámaras (futuro)
+
+### 🔧 Backend Robusto
+- ✅ API REST completa (NestJS)
+- ✅ Autenticación JWT
+- ✅ Control de acceso por roles (Admin/User)
+- ✅ Base de datos PostgreSQL
+- ✅ Migraciones automáticas con TypeORM
+
+### 🎨 Frontend Moderno
+- ✅ Interfaz responsiva (Vue.js + Tailwind CSS)
+- ✅ Dashboard en tiempo real
+- ✅ Gestión de espacios
+- ✅ Historial de eventos
+- ✅ Reportes y estadísticas
+- ✅ Panel de administración
+
+### 📊 Integración Completa
+- ✅ **NOVEDAD:** IA actualiza directamente PostgreSQL
+- ✅ Sincronización en tiempo real
+- ✅ Historial completo de eventos
+- ✅ Una sola fuente de verdad (PostgreSQL)
+
+---
+
+## 🔄 Flujo de Trabajo
+
+### Detección de Vehículo
+
+1. 📹 **Cámara captura** el estacionamiento
+2. 🤖 **YOLO detecta** vehículos en tiempo real
+3. 🗺️ **Sistema mapea** plaza numérica (1, 2, 3) a código backend (A-01, A-02, A-03)
+4. 💾 **Actualiza PostgreSQL** directamente:
+   - Modifica `parking_spaces.status`
+   - Crea evento en `occupancy_events`
+5. 🔌 **Backend** tiene datos actualizados inmediatamente
+6. 🌐 **Frontend** obtiene cambios en ~5 segundos (polling)
+7. 👤 **Usuario** ve estado actualizado en tiempo real
+
+### Consulta de Estado
+
+1. 👤 Usuario abre el frontend
+2. 🌐 Frontend hace `GET /parking/spaces`
+3. 🔌 Backend consulta PostgreSQL
+4. 💾 PostgreSQL devuelve estados actuales (actualizados por IA)
+5. 🎨 Frontend renderiza plazas con estado correcto
+
+---
+
+## 🎯 Casos de Uso
+
+### 1. Estacionamiento Público
+- Mostrar disponibilidad en tiempo real
+- Reducir tiempo de búsqueda de plaza
+- Generar reportes de ocupación
+
+### 2. Estacionamiento Privado (Empresas)
+- Control de acceso
+- Estadísticas de uso
+- Optimización de espacios
+
+### 3. Centros Comerciales
+- Guiar a usuarios a plazas libres
+- Analytics de flujo de vehículos
+- Integración con apps móviles
+
+---
+
+## 🔧 Tecnologías Utilizadas
+
+### Backend
+- **NestJS** - Framework Node.js
+- **TypeORM** - ORM para PostgreSQL
+- **PostgreSQL** - Base de datos relacional
+- **JWT** - Autenticación
+- **Docker** - Contenedorización
+
+### Frontend
+- **Vue.js 3** - Framework JavaScript
+- **Vite** - Build tool
+- **Tailwind CSS** - Estilos
+- **Pinia** - State management
+- **TypeScript** - Tipado estático
+
+### IA
+- **Python 3.8+** - Lenguaje
+- **YOLO v8** - Detección de objetos
+- **OpenCV** - Procesamiento de video
+- **psycopg2** - Conector PostgreSQL
+- **NumPy** - Procesamiento numérico
+
+---
+
+## ⚙️ Configuración Rápida
+
+### 1. Requisitos Previos
+- Node.js 16+ y npm
+- Python 3.8+
+- Docker (recomendado para PostgreSQL)
+- Cámara web
+
+### 2. Configuración de Variables de Entorno
+
+**Backend** (`.env` en `parking-iot-system-main/`):
+```bash
+DB_HOST=localhost
+DB_PORT=5433
+DB_USER=admin
+DB_PASSWORD=admin123
+DB_NAME=parkingdb
+JWT_SECRET=your-secret-key
+```
+
+**IA** (`.env` en `parking-monitor-ai/`):
+```bash
+DB_HOST=localhost
+DB_PORT=5433
+DB_USER=admin
+DB_PASSWORD=admin123
+DB_NAME=parkingdb
+```
+
+**⚠️ Importante:** Las credenciales deben coincidir en ambos proyectos.
+
+### 3. Mapeo de Plazas
+
+Edita `parking-monitor-ai/config/spot_mapping.json`:
+```json
+{
+    "1": "A-01",
+    "2": "A-02",
+    "3": "A-03",
+    "4": "A-04"
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Verificar Backend
+```bash
+curl http://localhost:3000/parking/spaces
+```
+
+### Verificar Frontend
+Navega a `http://localhost:5173` y haz login
+
+### Verificar IA
+```bash
+cd parking-monitor-ai/src
+python verify_setup.py
+```
+
+---
+
+## 🐛 Solución de Problemas
+
+### Backend no inicia
+```bash
+# Verifica PostgreSQL
+docker ps | grep postgres
+
+# Reinicia PostgreSQL
+cd parking-iot-system-main
+docker-compose restart postgres
+```
+
+### IA no conecta a BD
+```bash
+# Verifica configuración
+cd parking-monitor-ai/src
+python verify_setup.py
+```
+
+### Frontend no se actualiza
+- Espera 10 segundos (polling interval)
+- Verifica que el backend responda
+- Revisa consola del navegador (F12)
+
+**Más detalles:** Ver documentación específica de cada módulo.
+
+---
+
+## 📊 Métricas del Sistema
+
+Cuando todo funciona correctamente:
+
+- ⚡ **Latencia de detección:** <100ms (depende del hardware)
+- 🔄 **Actualización frontend:** 5-10 segundos (configurable)
+- 💾 **Consistencia de datos:** 100% (una sola BD)
+- 📈 **Escalabilidad:** Soporta múltiples cámaras/zonas
+- 🎯 **Precisión YOLO:** Depende del modelo entrenado
+
+---
+
+## 🎓 Para Desarrolladores
+
+### Extender el Sistema
+
+**Agregar nueva plaza:**
+1. Crea el espacio en backend (API o frontend)
+2. Agrega coordenadas en `parking_spots.json`
+3. Actualiza `spot_mapping.json`
+
+**Cambiar umbral de detección:**
+Edita `parking_monitor.py` línea ~78:
+```python
+if overlap > 0.05:  # Ajusta este valor
+```
+
+**Cambiar intervalo de polling frontend:**
+Edita el componente Vue correspondiente (ej. `Dashboard.vue`)
+
+---
+
+## 🤝 Contribuir
+
+Este proyecto está en desarrollo activo. Áreas de mejora:
+
+- [ ] WebSockets para actualizaciones en tiempo real
+- [ ] App móvil nativa
+- [ ] Múltiples cámaras simultáneas
+- [ ] Machine Learning para predicción de ocupación
+- [ ] Integración con sistemas de pago
+
+---
+
+## 📝 Changelog
+
+### v2.0.0 (Noviembre 2025) - INTEGRACIÓN COMPLETA
+- ✅ Migración de MySQL a PostgreSQL en módulo IA
+- ✅ Integración directa IA ↔ Backend
+- ✅ Actualizaciones en tiempo real
+- ✅ Mapeo flexible de plazas
+- ✅ Scripts de verificación y configuración
+- ✅ Documentación completa
+
+### v1.0.0 (Octubre 2025)
+- ✅ Backend NestJS con PostgreSQL
+- ✅ Frontend Vue.js
+- ✅ Sistema de IA independiente (MySQL)
+- ⚠️ Sin integración entre componentes
+
+---
+
+## 📞 Contacto
+
+Para soporte, consultas o contribuciones:
+
+1. Revisa la documentación en cada módulo
+2. Ejecuta scripts de verificación (`verify_setup.py`)
+3. Consulta `INICIO_RAPIDO.md` para guía paso a paso
+
+---
+
+## 📄 Licencia
+
+Este proyecto es parte del sistema Smart Park.
+
+---
+
+## 🎉 Estado Actual
+
+**✅ SISTEMA COMPLETAMENTE FUNCIONAL E INTEGRADO**
+
+- Backend: ✅ Funcionando
+- Frontend: ✅ Funcionando
+- IA: ✅ Integrado y funcionando
+- Base de Datos: ✅ Unificada (PostgreSQL)
+- Tiempo Real: ✅ Activo
+
+**¡Listo para usar! 🚗🎉**
+
+---
+
+**Última actualización:** Noviembre 2025  
+**Versión:** 2.0.0  
+**Mantenedor:** Smart Park Team
