@@ -1,7 +1,7 @@
 <template>
   <div class="w-full min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 flex flex-col profile-container">
     <div class="bg-white rounded-2xl shadow-lg p-8 my-8 mx-auto w-full max-w-4xl flex-1">
-      <h2 class="text-2xl font-bold mb-8 text-center text-blue-800 tracking-wide">Mi Perfil</h2>
+      <h2 class="text-2xl font-bold mb-8 text-center text-gray-800 tracking-wide">Mi Perfil</h2>
       
       <!-- Loading state -->
       <div v-if="loading" class="flex justify-center items-center py-20">
@@ -286,6 +286,9 @@ const loadUserInfo = async () => {
         createdAt: new Date().toISOString(), // Placeholder
         updatedAt: new Date().toISOString()  // Placeholder
       }
+      
+      // Inicializar el formulario de edición con el email del usuario
+      editForm.value.email = authStore.user.email
     } else {
       throw new Error('No hay información de usuario disponible')
     }

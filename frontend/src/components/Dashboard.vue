@@ -1,11 +1,11 @@
 <template>
-  <div class="w-full min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 flex flex-col dashboard-container">
+  <div class="w-full min-h-screen bg-gray-100 flex flex-col dashboard-container">
     <div class="bg-white rounded-2xl shadow-lg p-8 my-8 mx-auto w-full max-w-7xl flex-1">
-      <h2 class="text-2xl font-bold mb-8 text-center text-blue-800 tracking-wide">Mapa del Estacionamiento</h2>
+      <h2 class="text-2xl font-bold mb-8 text-center text-gray-800 tracking-wide">Estacionamiento</h2>
       
       <!-- Loading state -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600"></div>
       </div>
 
       <!-- Error state -->
@@ -21,8 +21,8 @@
         <!-- Resumen general arriba -->
         <div class="flex flex-wrap justify-center gap-6 mb-10">
           <div class="bg-gray-50 rounded-xl px-6 py-3 flex flex-col items-center shadow min-w-[120px]">
-            <span class="text-gray-500 text-xs">Total lugares</span>
-            <span class="font-bold text-2xl text-blue-900">{{ stats.total }}</span>
+            <span class="text-gray-600 text-xs">Total lugares</span>
+            <span class="font-bold text-2xl text-gray-900">{{ stats.total }}</span>
           </div>
           <div class="bg-green-50 rounded-xl px-6 py-3 flex flex-col items-center shadow min-w-[120px]">
             <span class="text-green-600 text-xs">Disponibles</span>
@@ -36,9 +36,9 @@
             <span class="text-yellow-600 text-xs">Desconocido</span>
             <span class="font-bold text-2xl text-yellow-700">{{ stats.unknown }}</span>
           </div>
-          <div class="bg-blue-50 rounded-xl px-6 py-3 flex flex-col items-center shadow min-w-[120px]">
-            <span class="text-blue-600 text-xs">Ocupación</span>
-            <span class="font-bold text-2xl text-blue-700">{{ stats.occupancyRate.toFixed(1) }}%</span>
+          <div class="bg-gray-50 rounded-xl px-6 py-3 flex flex-col items-center shadow min-w-[120px]">
+            <span class="text-gray-600 text-xs">Ocupación</span>
+            <span class="font-bold text-2xl text-gray-900">{{ stats.occupancyRate.toFixed(1) }}%</span>
           </div>
         </div>
 
@@ -46,7 +46,7 @@
         <div class="flex justify-between items-center mb-6">
           <button 
             @click="refreshData" 
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 flex items-center gap-2"
             :disabled="loading"
           >
             <span class="text-sm">🔄</span>
@@ -62,7 +62,7 @@
         <div class="flex flex-col lg:flex-row items-start gap-8">
           <!-- Mapa de lugares -->
           <div class="bg-white rounded-xl shadow p-6 w-full flex-1">
-            <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-4 w-full">
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-8 w-full">
               <div
                 v-for="space in parkingSpaces"
                 :key="space.id"
@@ -70,7 +70,7 @@
                 :class="[ 
                   'w-20 h-20 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-xs font-medium relative group select-none',
                   getSpaceClasses(space),
-                  selectedSpace?.id === space.id ? 'ring-4 ring-blue-400 scale-105 z-10' : ''
+                  selectedSpace?.id === space.id ? 'ring-4 ring-gray-400 scale-105 z-10' : ''
                 ]"
                 :title="`${space.spaceCode} - ${getStatusText(space.status)} - Click para cambiar estado`"
               >
@@ -78,15 +78,15 @@
                 <div class="text-lg font-bold leading-tight">{{ space.spaceCode }}</div>
                 <div class="text-[0.7rem] capitalize">{{ getStatusText(space.status) }}</div>
                 <span v-if="space.status === 'occupied'" class="absolute bottom-1 right-1 text-sm text-red-700 font-semibold animate-pulse">●</span>
-                <div v-if="selectedSpace?.id === space.id" class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs rounded px-2 py-1 shadow-lg z-20 whitespace-nowrap">
+                <div v-if="selectedSpace?.id === space.id" class="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg z-20 whitespace-nowrap">
                   Seleccionado
                 </div>
               </div>
             </div>
 
             <!-- Detalles del lugar seleccionado debajo del mapa -->
-            <div v-if="selectedSpace" class="mt-8 bg-white border border-blue-200 rounded-xl p-6 shadow">
-              <h3 class="font-bold text-blue-700 mb-4 text-lg flex items-center gap-2">
+            <div v-if="selectedSpace" class="mt-8 bg-white border border-gray-300 rounded-xl p-6 shadow">
+              <h3 class="font-bold text-gray-800 mb-4 text-lg flex items-center gap-2">
                 <span class="text-xl">{{ getSpaceIcon(selectedSpace) }}</span>
                 Detalles del Espacio {{ selectedSpace.spaceCode }}
               </h3>
@@ -368,5 +368,10 @@ span, div, p, h1, h2, h3, h4, h5, h6 {
 
 .text-xs:not([class*="text-"]) {
   color: #6b7280;
+}
+
+/* Forzar texto blanco en el tooltip de seleccionado */
+.bg-gray-800.text-white {
+  color: white !important;
 }
 </style>

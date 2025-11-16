@@ -1,28 +1,29 @@
   <template>
-    <header class="w-full bg-[#18345d] text-white h-20 flex items-center justify-between px-8 shadow-md">
-      <div class="font-bold text-xl logo">SmartPark</div>
+    <header class="w-full bg-gray-800 text-white h-13 flex items-center justify-between px-8 shadow-lg">
+      <div class="flex items-center gap-8">
+
+      <div class="font-bold text-xl logo text-white">SmartPark</div>
       <nav class="flex gap-6">
         <RouterLink
           v-for="tab in visibleTabs"
           :key="tab.id"
           :to="tab.path"
-          class="py-4 px-2 border-b-2 font-medium text-sm transition-colors"
-          :class="$route.path === tab.path
-            ? 'border-blue-500 text-blue-600'
-            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-4 px-2 border-b-2 font-medium text-sm transition-colors text-white hover:text-white"
+          :class="$route.path === tab.path ? 'border-white' : 'border-transparent hover:border-white'"
         >
           {{ tab.name }}
         </RouterLink>
       </nav>
-      <div class="flex gap-4 items-center">
+      </div>
+      <div class="flex gap-4 items-center text-white">
         <template v-if="authStore.isAuthenticated">
-          <span class="text-sm text-gray-300">{{ authStore.user?.email }}</span>
-          <span class="text-xs bg-blue-600 px-2 py-1 rounded">{{ authStore.user?.role }}</span>
-          <router-link to="/profile" class="hover:text-blue-300 transition-colors">Profile</router-link>
-          <button @click="handleLogout" class="hover:text-red-300 transition-colors">Logout</button>
+          <span class="text-sm text-white">{{ authStore.user?.email }}</span>
+          <span class="text-xs bg-gray-600 px-2 py-1 rounded text-white">{{ authStore.user?.role }}</span>
+          <router-link to="/profile" class="transition-colors text-white hover:text-white">Profile</router-link>
+          <button @click="handleLogout" class="text-white transition-colors hover:text-white">Logout</button>
         </template>
         <template v-else>
-          <router-link to="/login" class="hover:text-blue-300 transition-colors">Login</router-link>
+          <router-link to="/login" class="transition-colors text-white hover:text-white">Login</router-link>
         </template>
       </div>
     </header>
@@ -56,3 +57,20 @@ const handleLogout = async () => {
   await router.push('/login')
 }
 </script>
+
+<style scoped>
+/* Forzar que todos los links sean blancos */
+header a,
+header .router-link-active,
+header .router-link-exact-active {
+  color: white !important;
+}
+
+header a:hover {
+  color: white !important;
+}
+
+header nav a {
+  color: white !important;
+}
+</style>

@@ -1,21 +1,10 @@
 <template>
   <div class="w-full min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 flex flex-col configuracion-container">
     <div class="bg-white rounded-2xl shadow-lg p-8 my-8 mx-auto w-full max-w-7xl flex-1">
-      <h2 class="text-2xl font-bold mb-8 text-center text-blue-800 tracking-wide">Configuración del Sistema</h2>
+      <h2 class="text-2xl font-bold mb-8 text-center text-gray-800 tracking-wide">Configuración del Sistema</h2>
       
       <!-- Tabs de navegación -->
       <div class="flex border-b border-gray-200 mb-8">
-        <button
-          @click="activeTab = 'settings'"
-          :class="[
-            'px-6 py-3 font-medium text-sm border-b-2 transition-colors',
-            activeTab === 'settings'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          ]"
-        >
-          Configuración General
-        </button>
         <button
           @click="activeTab = 'users'"
           :class="[
@@ -26,6 +15,17 @@
           ]"
         >
           Gestión de Usuarios
+        </button>
+        <button
+          @click="activeTab = 'settings'"
+          :class="[
+            'px-6 py-3 font-medium text-sm border-b-2 transition-colors',
+            activeTab === 'settings'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          ]"
+        >
+          Configuración General
         </button>
         <button
           @click="activeTab = 'spaces'"
@@ -264,7 +264,7 @@
 
       <!-- Gestión de Espacios -->
       <div v-else-if="activeTab === 'spaces'" class="space-y-6">
-        <div class="bg-blue-50 rounded-xl p-6 shadow-sm">
+        <!-- <div class="bg-blue-50 rounded-xl p-6 shadow-sm">
           <h3 class="text-lg font-semibold mb-4 text-gray-800">Crear Espacios en Lote</h3>
           <div class="flex items-end gap-4">
             <div class="flex-1">
@@ -286,7 +286,7 @@
               {{ creatingSpaces ? 'Creando...' : 'Crear Espacios' }}
             </button>
           </div>
-        </div>
+        </div> -->
 
         <div class="bg-white rounded-xl p-6 shadow-sm">
           <h3 class="text-lg font-semibold mb-4 text-gray-800">Estadísticas de Espacios</h3>
@@ -438,7 +438,7 @@ const authStore = useAuthStore()
 const parkingStore = useParkingStore()
 
 // Estado reactivo
-const activeTab = ref<'settings' | 'users' | 'spaces'>('settings')
+const activeTab = ref<'settings' | 'users' | 'spaces'>('users')
 const localSettings = ref<Settings>({ ...props.settings })
 
 // Estado para usuarios

@@ -147,10 +147,12 @@ def detect_vehicles(frame):
         results = MODEL.predict(frame, device=DEVICE, imgsz=416, conf=0.25, verbose=False)
         detections = []
         for *xyxy, conf, cls in results[0].boxes.data.cpu().numpy():
+            # Siempre usar "auto" como nombre de clase, sin importar lo que detecte el modelo
+            class_name = "auto"
             detections.append((
                 int(xyxy[0]), int(xyxy[1]),
                 int(xyxy[2]), int(xyxy[3]),
-                MODEL.names[int(cls)], float(conf)
+                class_name, float(conf)
             ))
         return detections
     except Exception as e:
@@ -161,17 +163,8 @@ def detect_vehicles(frame):
 def check_occupancy(spots, detections):
     """Determina si cada plaza está ocupada según las detecciones."""
     status = []
-    # Crear lista de clases válidas basada en lo que el modelo puede detectar
-    vehicle_classes = []
-    if MODEL.names:
-        # Añadir todas las clases que contengan 'car' o 'toy' en su nombre
-        for class_name in MODEL.names.values():
-            if 'car' in class_name.lower() or 'toy' in class_name.lower():
-                vehicle_classes.append(class_name)
-    
-    # Si no se encontraron clases, usar valores por defecto
-    if not vehicle_classes:
-        vehicle_classes = ["toy_car", "car", "vehicle"]
+    # Solo aceptar la clase "auto"
+    vehicle_classes = ["auto"]
     
     print(f"\n[DEBUG] ========== NUEVO CICLO DE DETECCIÓN ==========")
     print(f"[DEBUG] Clases de vehículos aceptadas: {vehicle_classes}")
