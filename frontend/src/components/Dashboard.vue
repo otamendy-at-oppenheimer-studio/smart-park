@@ -45,11 +45,12 @@
         <!-- Controles -->
         <div class="flex justify-between items-center mb-6">
           <button 
-            @click="refreshData" 
-            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 flex items-center gap-2"
-            :disabled="loading"
+            @click="refreshData(false, true)" 
+            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="manualRefreshing"
           >
-            <span class="text-sm">🔄</span>
+            <span v-if="manualRefreshing" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+            <span v-else class="text-sm">🔄</span>
             Actualizar
           </button>
           
@@ -225,13 +226,22 @@ const emit = defineEmits<{
 const store = useParkingStore()
 const selectedSpace = ref<ParkingSpace | null>(null)
 const updating = ref(false)
+const manualRefreshing = ref(false)
 const lastUpdate = ref<Date | null>(null)
 
 // Polling para actualizaciones automáticas
 let pollingInterval: number | null = null
 
 // Computadas que usan el store
-const parkingSpaces = computed(() => store.parkingSpaces)
+const parkingSpaces = computed(() => {
+  // Ordenar espacios alfabéticamente por spaceCode
+  return [...store.parkingSpaces].sort((a, b) => {
+    return a.spaceCode.localeCompare(b.spaceCode, undefined, { 
+      numeric: true, 
+      sensitivity: 'base' 
+    })
+  })
+})
 const loading = computed(() => store.loading)
 const error = computed(() => store.error)
 const stats = computed(() => store.getStats())
@@ -242,7 +252,7 @@ const spaceEvents = computed(() =>
 
 // Inicialización
 onMounted(async () => {
-  await refreshData()
+  await refreshData(true) // Primera carga con loading
   startPolling()
 })
 
@@ -251,21 +261,28 @@ onUnmounted(() => {
 })
 
 // Funciones
-const refreshData = async () => {
+const refreshData = async (showLoading = false, isManual = false) => {
   try {
+    if (isManual) {
+      manualRefreshing.value = true
+    }
     await Promise.all([
-      store.loadParkingSpaces(),
+      store.loadParkingSpaces(showLoading),
       store.loadOccupancyEvents()
     ])
     lastUpdate.value = new Date()
   } catch (err) {
     console.error('Error refreshing data:', err)
+  } finally {
+    if (isManual) {
+      manualRefreshing.value = false
+    }
   }
 }
 
 const startPolling = () => {
-  // Actualizar cada 10 segundos
-  pollingInterval = setInterval(refreshData, 10000)
+  // Actualizar cada 1 segundo sin mostrar loading
+  pollingInterval = setInterval(() => refreshData(false, false), 1000)
 }
 
 const stopPolling = () => {

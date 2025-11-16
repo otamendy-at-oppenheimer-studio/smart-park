@@ -39,19 +39,28 @@ export const useParkingStore = defineStore('parking', () => {
   const occupancyEvents = ref<OccupancyEvent[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const initialLoadComplete = ref(false)
 
   // Cargar todos los espacios de estacionamiento
-  const loadParkingSpaces = async () => {
+  const loadParkingSpaces = async (showLoading = false) => {
     try {
-      loading.value = true
+      // Solo mostrar loading si se solicita explícitamente Y es la primera carga
+      if (showLoading && !initialLoadComplete.value) {
+        loading.value = true
+      }
       error.value = null
       const spaces = await getAllSpaces()
       parkingSpaces.value = spaces
+      if (!initialLoadComplete.value) {
+        initialLoadComplete.value = true
+        loading.value = false
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error al cargar espacios'
       console.error('Error loading parking spaces:', err)
-    } finally {
-      loading.value = false
+      if (showLoading && !initialLoadComplete.value) {
+        loading.value = false
+      }
     }
   }
 
