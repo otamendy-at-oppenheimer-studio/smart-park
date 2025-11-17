@@ -1,11 +1,7 @@
 # Etapa 1: Build
 FROM node:20-alpine AS builder
 
-
 WORKDIR /usr/src/app
-
-# Instalar netcat para wait-for-mqtt.sh
-RUN apk add --no-cache netcat-openbsd
 
 # Instalar todas las dependencias (dev + prod)
 COPY package*.json ./
@@ -16,15 +12,9 @@ COPY . .
 RUN npm run build
 
 # Etapa 2: Producción
-
 FROM node:20-alpine
 
-
-
 WORKDIR /usr/src/app
-
-# Instalar netcat para wait-for-mqtt.sh
-RUN apk add --no-cache netcat-openbsd
 
 # Solo instalar dependencias de producción
 COPY package*.json ./

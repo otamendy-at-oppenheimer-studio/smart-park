@@ -199,15 +199,6 @@ GET /parking/spaces
     "spaceCode": "A-01",
     "status": "free",
     "floor": "1",
-    "sensors": [
-      {
-        "id": "sensor-uuid",
-        "hwId": "ESP32_001",
-        "type": "ultrasonic",
-        "locationDescription": "Piso 1, Zona A",
-        "active": true
-      }
-    ],
     "createdAt": "2025-10-08T20:00:00.000Z",
     "updatedAt": "2025-10-08T20:30:00.000Z"
   }
@@ -227,7 +218,6 @@ GET /parking/spaces/{id}
   "spaceCode": "A-01",
   "status": "free",
   "floor": "1",
-  "sensors": [...],
   "createdAt": "2025-10-08T20:00:00.000Z",
   "updatedAt": "2025-10-08T20:30:00.000Z"
 }
@@ -256,7 +246,7 @@ POST /parking/spaces
     "spaceCode": "A-02",  // auto-generated
     "status": "free",
     "floor": "1",
-    "sensors": [],
+    "createdAt": "2025-10-08T20:30:00.000Z",
     "createdAt": "2025-10-08T21:00:00.000Z",
     "updatedAt": "2025-10-08T21:00:00.000Z"
   }
@@ -286,7 +276,6 @@ POST /parking/spaces/multiple
       "spaceCode": "A-01",
       "status": "unknown",
       "floor": null,
-      "sensors": [],
       "createdAt": "2025-10-08T21:00:00.000Z",
       "updatedAt": "2025-10-08T21:00:00.000Z"
     }
@@ -318,7 +307,6 @@ PUT /parking/spaces/{id}
     "spaceCode": "A-01",
     "status": "occupied",
     "floor": "2",
-    "sensors": [...],
     "createdAt": "2025-10-08T20:00:00.000Z",
     "updatedAt": "2025-10-08T21:10:00.000Z"
   }
@@ -347,7 +335,6 @@ PATCH /parking/spaces/{id}/status
     "spaceCode": "A-01",
     "status": "free",
     "floor": "1",
-    "sensors": [...],
     "createdAt": "2025-10-08T20:00:00.000Z",
     "updatedAt": "2025-10-08T21:15:00.000Z"
   }
@@ -369,200 +356,7 @@ DELETE /parking/spaces/{id}
 
 ---
 
-## 📡 Sensors
-
-### Get All Sensors
-```http
-GET /sensors
-```
-**Auth Required:** No
-
-**Response 200:**
-```json
-[
-  {
-    "id": "sensor-uuid",
-    "hwId": "ESP32_001",
-    "type": "ultrasonic",
-    "locationDescription": "Piso 1, Zona A",
-    "active": true,
-    "parkingSpace": {
-      "id": "space-uuid",
-      "spaceCode": "A-01",
-      "status": "free"
-    },
-    "createdAt": "2025-10-08T20:00:00.000Z",
-    "updatedAt": "2025-10-08T20:00:00.000Z"
-  }
-]
-```
-
-### Get Sensor by ID
-```http
-GET /sensors/{id}
-```
-**Auth Required:** No
-
-**Response 200:**
-```json
-{
-  "id": "sensor-uuid",
-  "hwId": "ESP32_001",
-  "type": "ultrasonic",
-  "locationDescription": "Piso 1, Zona A",
-  "active": true,
-  "parkingSpace": {
-    "id": "space-uuid",
-    "spaceCode": "A-01",
-    "status": "free"
-  },
-  "createdAt": "2025-10-08T20:00:00.000Z",
-  "updatedAt": "2025-10-08T20:00:00.000Z"
-}
-```
-
-**Response 404:**
-```json
-{
-  "message": "Sensor no encontrado"
-}
-```
-
-### Create Sensor
-```http
-POST /sensors
-```
-**Auth Required:** Yes (Admin only)
-
-**Request Body:**
-```json
-{
-  "hwId": "ESP32_002",                          // required, unique hardware ID
-  "type": "ultrasonic",                         // optional, defaults to "ultrasonic". Options: "ultrasonic" | "magnetic" | "radar"
-  "locationDescription": "Piso 2, Zona B",     // optional
-  "parkingSpaceId": "space-uuid"                // optional, associate with parking space
-}
-```
-
-**Response 201:**
-```json
-{
-  "message": "Sensor creado con éxito",
-  "sensor": {
-    "id": "new-sensor-uuid",
-    "hwId": "ESP32_002",
-    "type": "ultrasonic",
-    "locationDescription": "Piso 2, Zona B",
-    "active": true,
-    "parkingSpace": {
-      "id": "space-uuid",
-      "spaceCode": "B-01"
-    },
-    "createdAt": "2025-10-08T21:00:00.000Z",
-    "updatedAt": "2025-10-08T21:00:00.000Z"
-  }
-}
-```
-
-**Response 400:**
-```json
-{
-  "message": "Error al crear el sensor",
-  "error": "Hardware ID already exists"
-}
-```
-
-### Update Sensor
-```http
-PATCH /sensors/{id}
-```
-**Auth Required:** Yes (Admin only)
-
-**Request Body:**
-```json
-{
-  "type": "magnetic",                           // optional
-  "locationDescription": "New location",        // optional
-  "parkingSpaceId": "new-space-uuid",          // optional
-  "active": false                               // optional
-}
-```
-
-**Response 200:**
-```json
-{
-  "message": "Sensor actualizado con éxito",
-  "sensor": {
-    "id": "sensor-uuid",
-    "hwId": "ESP32_002",
-    "type": "magnetic",
-    "locationDescription": "New location",
-    "active": false,
-    "parkingSpace": {
-      "id": "new-space-uuid",
-      "spaceCode": "C-01"
-    },
-    "createdAt": "2025-10-08T20:00:00.000Z",
-    "updatedAt": "2025-10-08T21:15:00.000Z"
-  }
-}
-```
-
-### Delete Sensor (Soft Delete)
-```http
-DELETE /sensors/{id}
-```
-**Auth Required:** Yes (Admin only)
-
-**Response 200:**
-```json
-{
-  "message": "Sensor eliminado (soft delete) con éxito"
-}
-```
-
-### Process Sensor Event (IoT Endpoint)
-```http
-POST /sensors/event
-```
-**Auth Required:** No (Used by IoT devices)
-
-**Request Body:**
-```json
-{
-  "hwId": "ESP32_001",              // required, hardware ID of the sensor
-  "status": "occupied"              // required. Options: "free" | "occupied" | "unknown"
-}
-```
-
-**Response 200:**
-```json
-{
-  "message": "Evento procesado y estado actualizado con éxito",
-  "event": {
-    "id": "event-uuid",
-    "parkingSpace": {
-      "id": "space-uuid",
-      "spaceCode": "A-01",
-      "status": "occupied"
-    },
-    "status": "occupied",
-    "timestamp": "2025-10-08T21:20:00.000Z"
-  }
-}
-```
-
-**Response 400:**
-```json
-{
-  "message": "Error al procesar el evento",
-  "error": "Sensor not found or inactive"
-}
-```
-
----
-
-## 📊 Occupancy Events
+##  Occupancy Events
 
 ### Get All Occupancy Events
 ```http
@@ -844,21 +638,6 @@ interface ParkingSpace {
   spaceCode: string;              // e.g., "A-01", "B-03"
   status: "free" | "occupied" | "unknown";
   floor: string | null;
-  sensors: Sensor[];
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### Sensor
-```typescript
-interface Sensor {
-  id: string;
-  hwId: string;                   // Unique hardware identifier
-  type: "ultrasonic" | "magnetic" | "radar";
-  locationDescription: string | null;
-  active: boolean;
-  parkingSpace: ParkingSpace | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -993,7 +772,8 @@ const createReport = async (spaceId, startDate, endDate) => {
 ### 🎯 Essential Views
 1. **Real-time Dashboard** - Current parking status
 2. **Space Management** - CRUD operations for parking spaces
-3. **Sensor Management** - Monitor and configure IoT sensors
+3. **Reports & Analytics** - Historical data and insights
+4. **User Management** - Admin panel for user administration
 4. **Analytics & Reports** - Historical data and insights
 5. **User Management** - Admin panel for user operations
 
@@ -1008,7 +788,6 @@ Recommended charts:
 - **Occupancy rate over time** (line chart)
 - **Space utilization heatmap** (calendar view)
 - **Current status overview** (pie/donut chart)
-- **Sensor health status** (status indicators)
 
 ---
 

@@ -163,76 +163,6 @@ END;
 /
 
 -- ============================================
--- TRIGGER PARA TABLA: sensors
--- ============================================
-
--- Trigger para INSERT
-CREATE OR REPLACE TRIGGER trg_audit_sensors_insert
-AFTER INSERT ON sensors
-FOR EACH ROW
-DECLARE
-    v_new_values CLOB;
-BEGIN
-    v_new_values := '{"id":"' || :NEW.id || '",' ||
-                    '"hwId":"' || :NEW."hwId" || '",' ||
-                    '"type":"' || :NEW.type || '",' ||
-                    '"active":"' || CASE WHEN :NEW.active = 1 THEN 'true' ELSE 'false' END || '",' ||
-                    '"createdAt":"' || TO_CHAR(:NEW."createdAt", 'YYYY-MM-DD HH24:MI:SS') || '"}';
-    
-    INSERT INTO audit_log (
-        id, "tableName", action, "recordId", "oldValues", "newValues", "timestamp"
-    ) VALUES (
-        SYS_GUID_AS_CHAR(), 'sensors', 'INSERT', :NEW.id, NULL, v_new_values, SYSTIMESTAMP
-    );
-END;
-/
-
--- Trigger para UPDATE
-CREATE OR REPLACE TRIGGER trg_audit_sensors_update
-AFTER UPDATE ON sensors
-FOR EACH ROW
-DECLARE
-    v_old_values CLOB;
-    v_new_values CLOB;
-BEGIN
-    v_old_values := '{"id":"' || :OLD.id || '",' ||
-                    '"hwId":"' || :OLD."hwId" || '",' ||
-                    '"type":"' || :OLD.type || '",' ||
-                    '"active":"' || CASE WHEN :OLD.active = 1 THEN 'true' ELSE 'false' END || '"}';
-    
-    v_new_values := '{"id":"' || :NEW.id || '",' ||
-                    '"hwId":"' || :NEW."hwId" || '",' ||
-                    '"type":"' || :NEW.type || '",' ||
-                    '"active":"' || CASE WHEN :NEW.active = 1 THEN 'true' ELSE 'false' END || '"}';
-    
-    INSERT INTO audit_log (
-        id, "tableName", action, "recordId", "oldValues", "newValues", "timestamp"
-    ) VALUES (
-        SYS_GUID_AS_CHAR(), 'sensors', 'UPDATE', :NEW.id, v_old_values, v_new_values, SYSTIMESTAMP
-    );
-END;
-/
-
--- Trigger para DELETE
-CREATE OR REPLACE TRIGGER trg_audit_sensors_delete
-AFTER DELETE ON sensors
-FOR EACH ROW
-DECLARE
-    v_old_values CLOB;
-BEGIN
-    v_old_values := '{"id":"' || :OLD.id || '",' ||
-                    '"hwId":"' || :OLD."hwId" || '",' ||
-                    '"type":"' || :OLD.type || '"}';
-    
-    INSERT INTO audit_log (
-        id, "tableName", action, "recordId", "oldValues", "newValues", "timestamp"
-    ) VALUES (
-        SYS_GUID_AS_CHAR(), 'sensors', 'DELETE', :OLD.id, v_old_values, NULL, SYSTIMESTAMP
-    );
-END;
-/
-
--- ============================================
 -- TRIGGER PARA TABLA: occupancy_events
 -- ============================================
 
@@ -385,7 +315,6 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Tablas auditadas:');
     DBMS_OUTPUT.PUT_LINE('  - users');
     DBMS_OUTPUT.PUT_LINE('  - parking_spaces');
-    DBMS_OUTPUT.PUT_LINE('  - sensors');
     DBMS_OUTPUT.PUT_LINE('  - occupancy_events');
     DBMS_OUTPUT.PUT_LINE('  - reports');
     DBMS_OUTPUT.PUT_LINE('===========================================');

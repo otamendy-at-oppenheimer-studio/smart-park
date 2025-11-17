@@ -205,60 +205,6 @@
       }
     },
     {
-      "name": "Sensors - Crear sensor (caso 1)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"hwId\": \"sensor-001\",\n  \"type\": \"IR\",\n  \"locationDescription\": \"Cerca de la entrada principal\",\n  \"parkingSpaceId\": \"1\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/sensors",
-          "host": ["{{baseUrl}}"],
-          "path": ["sensors"]
-        }
-      }
-    },
-    {
-      "name": "Sensors - Crear sensor (caso 2)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"hwId\": \"sensor-002\",\n  \"type\": \"ULTRASONIC\",\n  \"locationDescription\": \"Zona trasera\",\n  \"parkingSpaceId\": \"2\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/sensors",
-          "host": ["{{baseUrl}}"],
-          "path": ["sensors"]
-        }
-      }
-    },
-    {
-      "name": "Sensors - Evento",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"hwId\": \"sensor-001\",\n  \"status\": \"OCCUPIED\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/sensors/event",
-          "host": ["{{baseUrl}}"],
-          "path": ["sensors", "event"]
-        }
-      }
-    },
-    {
       "name": "Users - Crear usuario",
       "request": {
         "method": "POST",

@@ -2,11 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Sensor } from '../sensors/sensor.entity';
 
 export enum SpaceStatus {
   FREE = 'free',
@@ -24,9 +22,6 @@ export class ParkingSpace {
 
   @Column({ type: 'varchar', length: 50, default: SpaceStatus.UNKNOWN })
   status: SpaceStatus;
-
-  @OneToMany(() => Sensor, sensor => sensor.parkingSpace, { cascade: true })
-  sensors: Sensor[];
 
   @Column({ nullable: true })
   floor: string;

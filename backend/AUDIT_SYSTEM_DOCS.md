@@ -49,9 +49,8 @@ El sistema audita automáticamente las siguientes tablas:
 
 1. **users** - Usuarios del sistema
 2. **parking_spaces** - Espacios de estacionamiento
-3. **sensors** - Sensores IoT
-4. **occupancy_events** - Eventos de ocupación
-5. **reports** - Reportes generados
+3. **occupancy_events** - Eventos de ocupación
+4. **reports** - Reportes generados
 
 ## Triggers Implementados
 

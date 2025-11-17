@@ -43,12 +43,12 @@ export class ParkingService {
 
 	// Obtener todos los espacios y su estado
 	async getAllSpaces(): Promise<ParkingSpace[]> {
-		return this.parkingRepo.find({ relations: ['sensors'] });
+		return this.parkingRepo.find();
 	}
 
 	// Obtener un espacio por id
 		async getSpaceById(id: string): Promise<ParkingSpace> {
-			const space = await this.parkingRepo.findOne({ where: { id }, relations: ['sensors'] });
+			const space = await this.parkingRepo.findOne({ where: { id } });
 			if (!space) throw new Error('ParkingSpace no encontrado');
 			return space;
 		}

@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ParkingModule } from './modules/parking/parking.module';
 import { OccupancyModule } from './modules/occupancy/occupancy.module';
-import { SensorsModule } from './modules/sensors/sensors.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { AuditModule } from './modules/audit/audit.module';
@@ -40,7 +39,6 @@ import { AuditModule } from './modules/audit/audit.module';
     }),
   ParkingModule,
   OccupancyModule,
-  SensorsModule,
   AuthModule,
   CommonModule,
   AuditModule,
